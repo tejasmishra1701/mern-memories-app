@@ -3,7 +3,9 @@ import Memory from '../models/memory.js';
 
 export const getMemories = async (req, res) => {
     try {
-        const memories = await Memory.find().sort({ createdAt: -1 });
+        const memories = await Memory.find()
+            .populate('creator', 'username')  // Add this line to populate creator data
+            .sort({ createdAt: -1 });
         res.status(200).json(memories);
     } catch (error) {
         res.status(404).json({ message: error.message });
