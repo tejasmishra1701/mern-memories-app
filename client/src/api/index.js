@@ -9,7 +9,10 @@ const API = axios.create({
 API.interceptors.request.use((req) => {
     const token = localStorage.getItem('token');
     if (token) {
+        console.log('Token present in request');
         req.headers.Authorization = `Bearer ${token}`;
+    } else {
+        console.log('No token found');
     }
     return req;
 }, (error) => {
@@ -36,7 +39,10 @@ export const signup = (formData) => API.post('/auth/signup', formData);
 export const updateProfile = (id, userData) => API.patch(`/user/${id}`, userData);
 
 // Memory APIs
-export const getMemories = () => API.get('/memory');
+export const getMemories = () => {
+    console.log('Making GET request to /memory');
+    return API.get('/memory');
+};
 export const createMemory = (newMemory) => API.post('/memory', newMemory);
 export const updateMemory = (id, updatedMemory) => API.patch(`/memory/${id}`, updatedMemory);
 export const deleteMemory = (id) => API.delete(`/memory/${id}`);

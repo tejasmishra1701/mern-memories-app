@@ -3,12 +3,20 @@ import Memory from '../models/memory.js';
 
 export const getMemories = async (req, res) => {
     try {
-        console.log('Fetching memories for user:', req.userId);
+        console.log('Fetching memories...');
+        console.log('User ID from token:', req.userId);
+        
         const memories = await Memory.find()
             .populate('creator', 'name username avatar')
             .sort({ createdAt: -1 });
         
         console.log('Found memories:', memories.length);
+        console.log('Memory details:', memories.map(m => ({
+            id: m._id,
+            title: m.title,
+            creator: m.creator?._id
+        })));
+        
         res.status(200).json(memories);
     } catch (error) {
         console.error('Error fetching memories:', error);

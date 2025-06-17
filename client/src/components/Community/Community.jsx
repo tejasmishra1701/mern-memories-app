@@ -7,12 +7,25 @@ import './Community.css';
 
 const Community = () => {
     const dispatch = useDispatch();
-    const { memories, loading } = useSelector((state) => state.memories);
+    const { memories, loading, error } = useSelector((state) => state.memories);
+    const { user } = useSelector((state) => state.auth);
     const [filteredMemories, setFilteredMemories] = useState([]);
 
     useEffect(() => {
-        dispatch(getMemories());
-    }, [dispatch]);
+        const fetchMemories = async () => {
+            try {
+                console.log('Fetching memories...');
+                await dispatch(getMemories()).unwrap();
+                console.log('Memories fetched:', memories.length);
+            } catch (err) {
+                console.error('Failed to fetch memories:', err);
+            }
+        };
+
+        if (user) {
+            fetchMemories();
+        }
+    }, [dispatch, user]);
 
     useEffect(() => {
         setFilteredMemories(memories);
@@ -61,6 +74,8 @@ const Community = () => {
     };
 
     if (loading) return <div className="loading">Loading memories...</div>;
+    if (error) return <div className="error-message">{error}</div>;
+    if (!memories.length) return <div className="no-memories">No memories found</div>;
 
     return (
         <div className="community-container">
