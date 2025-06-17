@@ -1,144 +1,147 @@
-import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile } from '../../redux/features/authSlice';
+import { getMemories } from '../../redux/features/memorySlice';
+import MemoryCard from '../Memory/MemoryCard';
 import './Profile.css';
 
 const Profile = () => {
-    const { user } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    const { user, loading: authLoading } = useSelector((state) => state.auth);
+    const { memories, loading: memoryLoading } = useSelector((state) => state.memories);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: user?.name || '',
         username: user?.username || '',
         bio: user?.bio || '',
-        age: user?.age || '',
-        gender: user?.gender || '',
-        spiritCharacter: user?.spiritCharacter || ''
+        avatar: user?.avatar || ''
     });
-    const dispatch = useDispatch();
+    const [imagePreview, setImagePreview] = useState(user?.avatar || '');
+
+    useEffect(() => {
+        dispatch(getMemories());
+    }, [dispatch]);
+
+    const userMemories = memories.filter(memory => memory.creator._id === user?._id);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+                setFormData(prev => ({ ...prev, avatar: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await dispatch(updateProfile(formData)).unwrap();
+            console.log('Submitting profile update:', formData);
+            const result = await dispatch(updateProfile({ 
+                id: user._id, 
+                formData 
+            })).unwrap();
+            console.log('Update successful:', result);
             setIsEditing(false);
         } catch (error) {
-            console.error('Failed to update profile:', error);
+            console.error('Update failed:', error);
         }
     };
+
+    if (authLoading) return <div className="loading">Loading...</div>;
 
     return (
         <div className="profile-container">
             <div className="profile-header">
-                <div className="profile-avatar">
-                    {user?.username?.charAt(0).toUpperCase() || 'U'}
-                </div>
-                <h1>{user?.username}'s Profile</h1>
-            </div>
-
-            <div className="profile-content">
-                {!isEditing ? (
-                    <div className="profile-info">
-                        <div className="info-section">
-                            <h3>Personal Information</h3>
-                            <div className="info-grid">
-                                <div className="info-item">
-                                    <span className="info-label">Name</span>
-                                    <span className="info-value">{user?.name}</span>
-                                </div>
-                                <div className="info-item">
-                                    <span className="info-label">Username</span>
-                                    <span className="info-value">{user?.username}</span>
-                                </div>
-                                <div className="info-item">
-                                    <span className="info-label">Age</span>
-                                    <span className="info-value">{user?.age}</span>
-                                </div>
-                                <div className="info-item">
-                                    <span className="info-label">Gender</span>
-                                    <span className="info-value">{user?.gender}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="info-section">
-                            <h3>About Me</h3>
-                            <p className="bio">{user?.bio || 'No bio yet'}</p>
-                        </div>
-
-                        <div className="info-section">
-                            <h3>Spirit Character</h3>
-                            <p className="spirit-character">{user?.spiritCharacter || 'Not set'}</p>
-                        </div>
-
-                        <button 
-                            className="edit-button"
-                            onClick={() => setIsEditing(true)}
-                        >
-                            Edit Profile
-                        </button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="edit-form">
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label>Name</label>
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Age</label>
-                                <input
-                                    type="number"
-                                    value={formData.age}
-                                    onChange={(e) => setFormData({...formData, age: e.target.value})}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Gender</label>
-                                <select
-                                    value={formData.gender}
-                                    onChange={(e) => setFormData({...formData, gender: e.target.value})}
-                                >
-                                    <option value="">Select Gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Bio</label>
-                            <textarea
-                                value={formData.bio}
-                                onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                                rows={4}
+                <div className="profile-image-container">
+                    {isEditing ? (
+                        <div className="edit-avatar">
+                            <img src={imagePreview} alt={user.username} />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                id="avatar-input"
+                                hidden
                             />
+                            <label htmlFor="avatar-input" className="change-avatar-btn">
+                                Change Photo
+                            </label>
                         </div>
+                    ) : (
+                        <img src={user.avatar || '/default-avatar.png'} alt={user.username} />
+                    )}
+                </div>
 
-                        <div className="form-group">
-                            <label>Spirit Character</label>
+                <div className="profile-info">
+                    {isEditing ? (
+                        <form onSubmit={handleSubmit} className="edit-profile-form">
                             <input
                                 type="text"
-                                value={formData.spiritCharacter}
-                                onChange={(e) => setFormData({...formData, spiritCharacter: e.target.value})}
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="Name"
+                                required
                             />
-                        </div>
-
-                        <div className="button-group">
-                            <button type="submit" className="save-button">Save Changes</button>
-                            <button 
-                                type="button" 
-                                className="cancel-button"
-                                onClick={() => setIsEditing(false)}
-                            >
-                                Cancel
+                            <input
+                                type="text"
+                                value={formData.username}
+                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                placeholder="Username"
+                                required
+                            />
+                            <textarea
+                                value={formData.bio}
+                                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                                placeholder="Bio"
+                                rows={3}
+                            />
+                            <div className="edit-buttons">
+                                <button type="submit">Save Changes</button>
+                                <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
+                            </div>
+                        </form>
+                    ) : (
+                        <>
+                            <h1>{user.name}</h1>
+                            <h2>@{user.username}</h2>
+                            {user.bio && <p className="bio">{user.bio}</p>}
+                            <button onClick={() => setIsEditing(true)} className="edit-profile-btn">
+                                Edit Profile
                             </button>
-                        </div>
-                    </form>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            <div className="profile-stats">
+                <div className="stat">
+                    <span className="stat-value">{userMemories.length}</span>
+                    <span className="stat-label">Memories</span>
+                </div>
+                <div className="stat">
+                    <span className="stat-value">{user.followers?.length || 0}</span>
+                    <span className="stat-label">Followers</span>
+                </div>
+                <div className="stat">
+                    <span className="stat-value">{user.following?.length || 0}</span>
+                    <span className="stat-label">Following</span>
+                </div>
+            </div>
+
+            <div className="user-memories">
+                <h3>My Memories</h3>
+                {memoryLoading ? (
+                    <div className="loading">Loading memories...</div>
+                ) : (
+                    <div className="memories-grid">
+                        {userMemories.map(memory => (
+                            <MemoryCard key={memory._id} memory={memory} />
+                        ))}
+                    </div>
                 )}
             </div>
         </div>

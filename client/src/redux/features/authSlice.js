@@ -43,10 +43,11 @@ export const updateProfile = createAsyncThunk(
     'auth/updateProfile',
     async ({ id, formData }, { rejectWithValue }) => {
         try {
+            console.log('Updating profile with:', formData);
             const response = await api.updateProfile(id, formData);
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Profile update failed');
+            return rejectWithValue(error.response?.data?.message || 'Update failed');
         }
     }
 );
@@ -104,6 +105,7 @@ const authSlice = createSlice({
             .addCase(updateProfile.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = action.payload;
+                localStorage.setItem('user', JSON.stringify(action.payload));
             })
             .addCase(updateProfile.rejected, (state, action) => {
                 state.loading = false;

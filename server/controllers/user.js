@@ -23,6 +23,8 @@ export const updateProfile = async (req, res) => {
     try {
         const { id } = req.params;
         const updates = req.body;
+        
+        console.log('Updating user:', id, updates);
 
         if (req.userId !== id) {
             return res.status(403).json({ message: "Not authorized to update this profile" });
@@ -34,8 +36,14 @@ export const updateProfile = async (req, res) => {
             { new: true }
         ).select('-password');
 
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        console.log('Updated user:', updatedUser);
         res.status(200).json(updatedUser);
     } catch (error) {
+        console.error('Update error:', error);
         res.status(500).json({ message: "Failed to update profile" });
     }
 };

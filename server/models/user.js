@@ -7,8 +7,23 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   age: Number,
   gender: String,
-  bio: String,
+  bio: {
+    type: String,
+    default: ''
+  },
   spiritCharacter: String,
+  avatar: {
+    type: String,
+    default: ''
+  },
+  followers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   createdAt: {
     type: Date,
     default: new Date()
