@@ -1,5 +1,5 @@
 import express from 'express';
-import auth from '../middleware/auth.js'; // Changed from named import to default import
+import auth from '../middleware/auth.js';
 import { 
     createMemory, 
     getMemories, 
@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 // Memory routes
-router.get('/', getMemories);
+router.get('/', auth, getMemories);  // Added auth middleware here
 router.post('/', auth, createMemory);
 router.patch('/:id', auth, updateMemory);
 router.delete('/:id', auth, deleteMemory);
