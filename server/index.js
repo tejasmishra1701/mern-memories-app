@@ -22,6 +22,8 @@ app.use('/user', userRoutes);
 
 // MongoDB connection
 const PORT = process.env.PORT || 5000;
-mongoose.connect(process.env.MONGODB_URI)
+const MONGODB_URI = process.env.MONGODB_URI;
+
+mongoose.connect(MONGODB_URI)
     .then(() => app.listen(PORT, () => console.log(`Server running on port: ${PORT}`)))
     .catch((error) => console.log(error.message));
