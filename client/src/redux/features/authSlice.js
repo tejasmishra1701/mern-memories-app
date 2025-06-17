@@ -37,6 +37,18 @@ export const signup = createAsyncThunk(
     }
 );
 
+export const updateProfile = createAsyncThunk(
+    'auth/updateProfile',
+    async (formData, { rejectWithValue }) => {
+        try {
+            const { data } = await API.patch('/users/profile', formData);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.response.data.message);
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
@@ -79,6 +91,9 @@ const authSlice = createSlice({
             .addCase(signup.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+            })
+            .addCase(updateProfile.fulfilled, (state, action) => {
+                state.user = action.payload;
             });
     }
 });
