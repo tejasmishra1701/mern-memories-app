@@ -17,10 +17,49 @@ export const createMemory = createAsyncThunk(
     'memories/createMemory',
     async (memoryData, { rejectWithValue }) => {
         try {
+            console.log('Creating memory with data:', memoryData);
             const response = await api.createMemory(memoryData);
+            console.log('Server response:', response);
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data.message);
+            console.error('Create memory error:', error.response?.data);
+            return rejectWithValue(error.response?.data?.message || 'Failed to create memory');
+        }
+    }
+);
+
+export const likeMemory = createAsyncThunk(
+    'memories/likeMemory',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await api.likeMemory(id);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to like memory');
+        }
+    }
+);
+
+export const commentMemory = createAsyncThunk(
+    'memories/commentMemory',
+    async ({ id, comment }, { rejectWithValue }) => {
+        try {
+            const response = await api.commentMemory(id, { text: comment });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to add comment');
+        }
+    }
+);
+
+export const deleteMemory = createAsyncThunk(
+    'memories/deleteMemory',
+    async (id, { rejectWithValue }) => {
+        try {
+            await api.deleteMemory(id);
+            return id;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to delete memory');
         }
     }
 );
@@ -62,6 +101,25 @@ const memorySlice = createSlice({
             .addCase(createMemory.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+            })
+            .addCase(likeMemory.fulfilled, (state, action) => {
+                const index = state.memories.findIndex(
+                    (memory) => memory._id === action.payload._id
+                );
+                if (index !== -1) {
+                    state.memories[index] = action.payload;
+                }
+            })
+            .addCase(commentMemory.fulfilled, (state, action) => {
+                const index = state.memories.findIndex(
+                    (memory) => memory._id === action.payload._id
+                );
+                if (index !== -1) {
+                    state.memories[index] = action.payload;
+                }
+            })
+            .addCase(deleteMemory.fulfilled, (state, action) => {
+                state.memories = state.memories.filter(memory => memory._id !== action.payload);
             });
     }
 });

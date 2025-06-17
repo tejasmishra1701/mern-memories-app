@@ -5,7 +5,8 @@ import {
     getMemories, 
     updateMemory, 
     deleteMemory, 
-    likeMemory 
+    likeMemory,
+    commentMemory
 } from '../controllers/memory.js';
 
 const router = express.Router();
@@ -16,5 +17,6 @@ router.post('/', auth, createMemory);
 router.patch('/:id', auth, updateMemory);
 router.delete('/:id', auth, deleteMemory);
 router.patch('/:id/like', auth, likeMemory);
+router.post('/:id/comment', auth, commentMemory);
 
 export default router;

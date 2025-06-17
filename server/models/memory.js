@@ -32,6 +32,22 @@ const memorySchema = new mongoose.Schema({
         type: String,
         trim: true
     }],
+    comments: [{
+        text: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        creator: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now

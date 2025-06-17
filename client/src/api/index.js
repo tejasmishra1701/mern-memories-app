@@ -18,10 +18,14 @@ export const updateProfile = (id, formData) => API.patch(`/auth/${id}`, formData
 
 // Memory APIs
 export const getMemories = () => API.get('/memory');
-export const createMemory = (newMemory) => API.post('/memory', newMemory);
+export const createMemory = (memoryData) => {
+    console.log('API call data:', memoryData);
+    return API.post('/memory', memoryData);
+};
 export const updateMemory = (id, updatedMemory) => API.patch(`/memory/${id}`, updatedMemory);
 export const deleteMemory = (id) => API.delete(`/memory/${id}`);
 export const likeMemory = (id) => API.patch(`/memory/${id}/like`);
+export const commentMemory = (id, comment) => API.post(`/memory/${id}/comment`, comment);
 
 // Search APIs
 export const searchMemories = (searchQuery) => 

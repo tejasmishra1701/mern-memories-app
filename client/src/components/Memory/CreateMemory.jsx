@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { createMemory } from '../../redux/features/memorySlice';
 import './CreateMemory.css';
 
@@ -10,19 +10,18 @@ const CreateMemory = () => {
         description: '',
         image: ''
     });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [imagePreview, setImagePreview] = useState('');
-    const navigate = useNavigate();
+    const { loading, error } = useSelector((state) => state.memories);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setFormData({ ...formData, image: reader.result });
                 setImagePreview(reader.result);
+                setFormData({ ...formData, image: reader.result });
             };
             reader.readAsDataURL(file);
         }
@@ -30,63 +29,62 @@ const CreateMemory = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         try {
-            await dispatch(createMemory(formData)).unwrap();
+            console.log('Submitting memory:', formData);
+            const result = await dispatch(createMemory(formData)).unwrap();
+            console.log('Memory created:', result);
             navigate('/community');
         } catch (err) {
-            setError(err.message || 'Failed to create memory');
-        } finally {
-            setLoading(false);
+            console.error('Failed to create memory:', err);
         }
     };
 
     return (
         <div className="create-memory-container">
-            <h2 className="create-memory-title">Create New Memory</h2>
-            
+            <h2>Create New Memory</h2>
             {error && <div className="error-message">{error}</div>}
             
             <form onSubmit={handleSubmit} className="memory-form">
                 <div className="form-group">
-                    <label htmlFor="title" className="form-label">Title</label>
+                    <label>Title</label>
                     <input
-                        id="title"
                         type="text"
-                        className="form-input"
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder="Give your memory a title"
+                        placeholder="Enter memory title"
                         required
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="description" className="form-label">Description</label>
+                    <label>Description</label>
                     <textarea
-                        id="description"
-                        className="form-input form-textarea"
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="Share your memory's story..."
                         required
+                        rows={4}
                     />
                 </div>
 
-                <div className="form-group">
-                    <label className="form-label">Image</label>
+                <div className="form-group image-upload-group">
+                    <label>Memory Image</label>
                     <div 
-                        className="image-upload"
+                        className={`image-upload-area ${imagePreview ? 'has-image' : ''}`}
                         onClick={() => document.getElementById('image-input').click()}
                     >
                         {imagePreview ? (
-                            <div className="image-preview">
+                            <div className="image-preview-wrapper">
                                 <img src={imagePreview} alt="Preview" />
+                                <div className="image-overlay">
+                                    <span>Click to change image</span>
+                                </div>
                             </div>
                         ) : (
                             <div className="upload-placeholder">
                                 <i className="upload-icon">📸</i>
                                 <p>Click to upload an image</p>
+                                <span className="upload-hint">JPG, PNG or GIF (Max 5MB)</span>
                             </div>
                         )}
                         <input
@@ -94,17 +92,13 @@ const CreateMemory = () => {
                             type="file"
                             accept="image/*"
                             onChange={handleImageChange}
-                            style={{ display: 'none' }}
                             required
+                            style={{ display: 'none' }}
                         />
                     </div>
                 </div>
 
-                <button 
-                    type="submit" 
-                    className="submit-button"
-                    disabled={loading}
-                >
+                <button type="submit" disabled={loading}>
                     {loading ? 'Creating...' : 'Create Memory'}
                 </button>
             </form>

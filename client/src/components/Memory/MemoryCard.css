@@ -1,0 +1,224 @@
+.memory-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.memory-card:hover {
+    transform: translateY(-5px);
+}
+
+.memory-card.hidden {
+    visibility: hidden;
+}
+
+.memory-image-container {
+    position: relative;
+    padding-top: 60%;
+    overflow: hidden;
+}
+
+.memory-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.memory-content {
+    padding: 1.5rem;
+}
+
+.memory-title {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.memory-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.memory-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.memory-creator {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.memory-date {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.memory-actions {
+    padding: 0.5rem 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.like-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.like-button:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+}
+
+.like-button.liked {
+    color: #ff4d4d;
+}
+
+.like-button svg {
+    font-size: 1.2rem;
+}
+
+.expanded-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 2rem;
+}
+
+.expanded-card {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: cardExpand 0.3s ease;
+}
+
+.close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 2;
+}
+
+.close-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.expanded-image-container {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.expanded-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.expanded-content {
+    padding: 2rem;
+}
+
+.expanded-description {
+    margin: 1.5rem 0;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.delete-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 59, 59, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.delete-button:hover {
+    background: rgb(255, 59, 59);
+    transform: scale(1.1);
+}
+
+.delete-button.expanded {
+    right: 4rem;
+}
+
+@keyframes cardExpand {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+    .expanded-card {
+        width: 95%;
+        margin: 1rem;
+    }
+
+    .expanded-image-container {
+        height: 300px;
+    }
+
+    .expanded-content {
+        padding: 1rem;
+    }
+}
