@@ -1,25 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
-
-API.interceptors.request.use((req) => {
-    const profile = localStorage.getItem('profile');
-    if (profile) {
-        req.headers.Authorization = `Bearer ${JSON.parse(profile).token}`;
-    }
-    return req;
-});
+import * as api from '../../api';
 
 export const login = createAsyncThunk(
     'auth/login',
     async (formData, { rejectWithValue }) => {
         try {
-            const { data } = await API.post('/auth/signin', formData);
-            localStorage.setItem('profile', JSON.stringify(data));
-            return data;
+            console.log('Making login request with:', formData);
+            const response = await api.login(formData);
+            console.log('Login response:', response);
+
+            if (response?.data?.token) {
+                localStorage.setItem('token', response.data.token);
+                return response.data;
+            }
+            return rejectWithValue('No token received from server');
         } catch (error) {
-            return rejectWithValue(error.response.data.message);
+            console.error('Login error in slice:', error);
+            return rejectWithValue(
+                error.response?.data?.message || 
+                'Server error during login'
+            );
         }
     }
 );
@@ -28,23 +28,25 @@ export const signup = createAsyncThunk(
     'auth/signup',
     async (formData, { rejectWithValue }) => {
         try {
-            const { data } = await API.post('/auth/signup', formData);
-            localStorage.setItem('profile', JSON.stringify(data));
-            return data;
+            const response = await api.signup(formData);
+            if (response.data) {
+                localStorage.setItem('token', response.data.token);
+                return response.data;
+            }
         } catch (error) {
-            return rejectWithValue(error.response.data.message);
+            return rejectWithValue(error.response?.data?.message || 'Signup failed');
         }
     }
 );
 
 export const updateProfile = createAsyncThunk(
     'auth/updateProfile',
-    async (formData, { rejectWithValue }) => {
+    async ({ id, formData }, { rejectWithValue }) => {
         try {
-            const { data } = await API.patch('/users/profile', formData);
-            return data;
+            const response = await api.updateProfile(id, formData);
+            return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data.message);
+            return rejectWithValue(error.response?.data?.message || 'Profile update failed');
         }
     }
 );
@@ -53,15 +55,18 @@ const authSlice = createSlice({
     name: 'auth',
     initialState: {
         user: null,
-        token: null,
+        token: localStorage.getItem('token'),
         loading: false,
         error: null
     },
     reducers: {
         logout: (state) => {
-            localStorage.removeItem('profile');
+            localStorage.removeItem('token');
             state.user = null;
             state.token = null;
+        },
+        clearError: (state) => {
+            state.error = null;
         }
     },
     extraReducers: (builder) => {
@@ -92,11 +97,20 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            .addCase(updateProfile.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(updateProfile.fulfilled, (state, action) => {
+                state.loading = false;
                 state.user = action.payload;
+            })
+            .addCase(updateProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             });
     }
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, clearError } = authSlice.actions;
 export default authSlice.reducer;

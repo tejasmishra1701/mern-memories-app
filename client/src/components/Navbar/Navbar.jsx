@@ -18,7 +18,9 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
-                <div className="logo">Memories</div>
+                <Link to="/" className="logo">
+                    Memories
+                </Link>
                 
                 <div className="nav-links">
                     <Link to="/community" className="nav-link">Community</Link>

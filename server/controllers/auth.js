@@ -4,18 +4,21 @@ import User from '../models/user.js';
 
 export const signin = async (req, res) => {
     const { email, password } = req.body;
+    console.log('Login attempt for email:', email);
 
     try {
         const existingUser = await User.findOne({ email });
+        console.log('User found:', existingUser ? 'Yes' : 'No');
         
         if (!existingUser) {
-            return res.status(404).json({ message: "User doesn't exist." });
+            return res.status(404).json({ message: "User doesn't exist" });
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
+        console.log('Password correct:', isPasswordCorrect ? 'Yes' : 'No');
         
         if (!isPasswordCorrect) {
-            return res.status(400).json({ message: "Invalid credentials." });
+            return res.status(400).json({ message: "Invalid credentials" });
         }
 
         const token = jwt.sign(
@@ -23,6 +26,8 @@ export const signin = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
+
+        console.log('Token generated successfully');
 
         res.status(200).json({
             result: {
@@ -34,7 +39,8 @@ export const signin = async (req, res) => {
             token
         });
     } catch (error) {
-        res.status(500).json({ message: "Something went wrong." });
+        console.error('Server error during login:', error);
+        res.status(500).json({ message: "Something went wrong" });
     }
 };
 

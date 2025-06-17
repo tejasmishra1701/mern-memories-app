@@ -12,7 +12,7 @@ API.interceptors.request.use((req) => {
 });
 
 // Auth APIs
-export const login = (formData) => API.post('/auth/login', formData);
+export const login = (formData) => API.post('/auth/signin', formData);
 export const signup = (formData) => API.post('/auth/signup', formData);
 export const updateProfile = (id, formData) => API.patch(`/auth/${id}`, formData);
 

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../../redux/features/authSlice';
 import './Auth.css';
 
@@ -9,24 +9,32 @@ const Login = () => {
         email: '',
         password: ''
     });
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+    
+    const { user, token, loading, error } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Attempting login with:', formData);
+        
         try {
-            await dispatch(login(formData)).unwrap();
-            navigate('/community');
+            const result = await dispatch(login(formData)).unwrap();
+            console.log('Login result:', result);
+            
+            if (result?.token) {
+                console.log('Token received, navigating to community');
+                navigate('/community');
+            }
         } catch (err) {
-            setError(err.message || 'Login failed');
+            console.error('Login error:', err);
         }
     };
 
     return (
         <div className="auth-container">
             <h2>Sign In</h2>
-            {error && <p className="error-message">{error}</p>}
+            {error && <div className="error-message">{error}</div>}
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <input

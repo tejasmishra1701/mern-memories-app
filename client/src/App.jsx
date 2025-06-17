@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from './components/Navbar/Navbar';
 import Home from './components/Home/Home';
@@ -13,7 +13,7 @@ import './App.css';
 const App = () => {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
-    const { loading } = useSelector((state) => state.auth);
+    const { loading, token } = useSelector((state) => state.auth);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -25,8 +25,14 @@ const App = () => {
             <main className={`main-content ${isHomePage ? 'home' : 'with-padding'}`}>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/auth/login" element={<Login />} />
-                    <Route path="/auth/signup" element={<SignUp />} />
+                    <Route 
+                        path="/auth/login" 
+                        element={token ? <Navigate to="/community" /> : <Login />} 
+                    />
+                    <Route 
+                        path="/auth/signup" 
+                        element={token ? <Navigate to="/community" /> : <SignUp />} 
+                    />
                     <Route path="/community" element={
                         <ProtectedRoute>
                             <Community />
