@@ -22,6 +22,11 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 }));
 
+// Add this before other routes
+app.get('/', (req, res) => {
+    res.json({ message: 'Memories API is running' });
+});
+
 // Routes
 app.use('/memory', memoryRoutes);
 app.use('/auth', authRoutes);
