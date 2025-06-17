@@ -1,17 +1,27 @@
 import axios from 'axios';
+import config from '../config/config';
 
 const API = axios.create({ 
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000'
+    baseURL: config.API_URL,
+    timeout: 10000, // 10 seconds timeout
 });
 
-// Add token to every request if it exists
 API.interceptors.request.use((req) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        req.headers.Authorization = `Bearer ${token}`;
-    }
+    console.log('Making request to:', req.url);
     return req;
 });
+
+API.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('API Error:', {
+            url: error.config?.url,
+            status: error.response?.status,
+            message: error.message
+        });
+        return Promise.reject(error);
+    }
+);
 
 // Auth APIs
 export const login = (formData) => API.post('/auth/signin', formData);
