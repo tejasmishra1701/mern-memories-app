@@ -1,0 +1,201 @@
+.search-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-input-container {
+    flex: 1;
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    background: white;
+    outline: none;
+}
+
+.filter-button {
+    padding: 1rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-button:hover {
+    background: #ff5252;
+    transform: translateY(-1px);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+}
+
+.filter-group select {
+    padding: 0.75rem 2rem 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    min-width: 180px;
+    color: #374151;
+    box-shadow: #ff4e4e;
+}
+
+.filter-group select:hover {
+    border-color: rgb(255, 47, 47);
+    background-color: #f6f4f3;
+}
+
+/* Styling the dropdown options */
+.filter-group select option {
+    padding: 12px;
+    background-color: white;
+    color: #374151;
+    cursor: pointer;
+}
+
+/* Styling for the select when open */
+.filter-group select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+}
+
+/* Custom styling for options on hover and selection */
+.filter-group select option:hover,
+.filter-group select option:focus,
+.filter-group select option:active,
+.filter-group select option:checked {
+    background: linear-gradient(0deg, #f9fafb 0%, #f9fafb 100%);
+    background-color: #f9fafb;
+    color: var(--primary-color);
+}
+
+/* Webkit specific styling for dropdown */
+.filter-group select::-webkit-scrollbar {
+    width: 8px;
+}
+
+.filter-group select::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.filter-group select::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.filter-group select::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Firefox specific styling */
+.filter-group select {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f1f1f1;
+}
+
+/* Microsoft Edge specific styling */
+.filter-group select::-ms-expand {
+    display: none;
+}
+
+.filter-group select::-ms-value {
+    background: transparent;
+    color: #374151;
+}
+
+.filter-container {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    gap: 2rem;
+    animation: slideDown 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .filter-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filter-group select {
+        width: 100%;
+    }
+}
+
+@media (hover: hover) {
+    .filter-group select:hover {
+        transform: translateY(-1px);
+    }
+}

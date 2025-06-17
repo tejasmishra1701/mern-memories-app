@@ -1,44 +1,75 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMemories } from '../../redux/features/memorySlice';
 import MemoryCard from '../Memory/MemoryCard';
+import SearchBar from '../Search/SearchBar';
 import './Community.css';
 
 const Community = () => {
     const dispatch = useDispatch();
-    const { memories, loading, error } = useSelector((state) => state.memories);
+    const { memories, loading } = useSelector((state) => state.memories);
+    const [filteredMemories, setFilteredMemories] = useState([]);
 
     useEffect(() => {
         dispatch(getMemories());
     }, [dispatch]);
 
-    if (loading) {
-        return (
-            <div className="loading-container">
-                <div className="loader"></div>
-            </div>
-        );
-    }
+    useEffect(() => {
+        setFilteredMemories(memories);
+    }, [memories]);
 
-    if (error) {
-        return <div className="error-message">{error}</div>;
-    }
+    const handleSearch = (searchTerm) => {
+        const filtered = memories.filter(memory => 
+            memory.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredMemories(filtered);
+    };
+
+    const handleFilter = ({ sortBy, timeFrame }) => {
+        let filtered = [...memories];
+
+        // Apply time frame filter
+        if (timeFrame !== 'all') {
+            const now = new Date();
+            const timeFrames = {
+                today: 1,
+                week: 7,
+                month: 30
+            };
+            
+            filtered = filtered.filter(memory => {
+                const memoryDate = new Date(memory.createdAt);
+                const diffTime = Math.abs(now - memoryDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays <= timeFrames[timeFrame];
+            });
+        }
+
+        // Apply sorting
+        switch (sortBy) {
+            case 'oldest':
+                filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                break;
+            case 'mostLiked':
+                filtered.sort((a, b) => b.likes.length - a.likes.length);
+                break;
+            default: // newest
+                filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+
+        setFilteredMemories(filtered);
+    };
+
+    if (loading) return <div className="loading">Loading memories...</div>;
 
     return (
         <div className="community-container">
-            <h1 className="community-title">Community Memories</h1>
-            
-            {memories.length === 0 ? (
-                <div className="no-memories">
-                    <p>No memories shared yet. Be the first to share!</p>
-                </div>
-            ) : (
-                <div className="memories-grid">
-                    {memories.map((memory) => (
-                        <MemoryCard key={memory._id} memory={memory} />
-                    ))}
-                </div>
-            )}
+            <SearchBar onSearch={handleSearch} onFilter={handleFilter} />
+            <div className="memories-grid">
+                {filteredMemories.map(memory => (
+                    <MemoryCard key={memory._id} memory={memory} />
+                ))}
+            </div>
         </div>
     );
 };
