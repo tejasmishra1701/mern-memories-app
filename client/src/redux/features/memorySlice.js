@@ -1,15 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
-
-API.interceptors.request.use((req) => {
-    const profile = localStorage.getItem('profile');
-    if (profile) {
-        req.headers.Authorization = `Bearer ${JSON.parse(profile).token}`;
-    }
-    return req;
-});
+import * as api from '../../api'; // Updated path to point to src/api folder
 
 export const getMemories = createAsyncThunk(
     'memories/getMemories',
@@ -27,8 +17,8 @@ export const createMemory = createAsyncThunk(
     'memories/createMemory',
     async (memoryData, { rejectWithValue }) => {
         try {
-            const { data } = await API.post('/memories', memoryData);
-            return data;
+            const response = await api.createMemory(memoryData);
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data.message);
         }
@@ -39,10 +29,15 @@ const memorySlice = createSlice({
     name: 'memories',
     initialState: {
         memories: [],
+        currentMemory: null,
         loading: false,
         error: null
     },
-    reducers: {},
+    reducers: {
+        clearError: (state) => {
+            state.error = null;
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(getMemories.pending, (state) => {
@@ -58,6 +53,7 @@ const memorySlice = createSlice({
             })
             .addCase(createMemory.pending, (state) => {
                 state.loading = true;
+                state.error = null;
             })
             .addCase(createMemory.fulfilled, (state, action) => {
                 state.loading = false;
@@ -70,4 +66,5 @@ const memorySlice = createSlice({
     }
 });
 
+export const { clearError } = memorySlice.actions;
 export default memorySlice.reducer;

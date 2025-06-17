@@ -13,11 +13,23 @@ export const getMemories = async (req, res) => {
 };
 
 export const createMemory = async (req, res) => {
-    const memory = req.body;
-    const newMemory = new Memory({ ...memory, creator: req.userId });
+    const { title, description, image, tags } = req.body;
 
     try {
-        await newMemory.save();
+        if (!title || !description || !image) {
+            return res.status(400).json({ message: "Please provide all required fields" });
+        }
+
+        const newMemory = await Memory.create({
+            title,
+            description,
+            image,
+            tags: tags || [],
+            creator: req.userId
+        });
+
+        await newMemory.populate('creator', 'username');
+
         res.status(201).json(newMemory);
     } catch (error) {
         res.status(409).json({ message: error.message });
@@ -50,3 +62,39 @@ export const deleteMemory = async (req, res) => {
 
     res.json({ message: 'Memory deleted successfully' });
 };
+
+export const likeMemory = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ message: "Memory not found" });
+        }
+
+        const memory = await Memory.findById(id);
+
+        if (!memory) {
+            return res.status(404).json({ message: "Memory not found" });
+        }
+
+        const index = memory.likes.findIndex((id) => id === String(req.userId));
+
+        if (index === -1) {
+            memory.likes.push(req.userId);
+        } else {
+            memory.likes = memory.likes.filter((id) => id !== String(req.userId));
+        }
+
+        const updatedMemory = await Memory.findByIdAndUpdate(
+            id,
+            memory,
+            { new: true }
+        ).populate('creator', 'username');
+
+        res.status(200).json(updatedMemory);
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
+// Make sure all controller functions are exported

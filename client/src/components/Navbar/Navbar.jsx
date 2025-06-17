@@ -8,7 +8,7 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { user } = useSelector((state) => state.auth);
+    const { user, token } = useSelector((state) => state.auth);
 
     const handleLogout = () => {
         dispatch(logout());
@@ -18,46 +18,46 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
-                <Link to="/" className="logo">
-                    Memories
-                </Link>
+                <div className="logo">Memories</div>
                 
-                {user && (
-                    <div className="nav-links">
-                        <Link to="/community" className="nav-link">
-                            Community
-                        </Link>
-                        <Link to="/create-memory" className="nav-link">
-                            Create Memory
-                        </Link>
-                        
-                        <div className="dropdown">
-                            <button 
-                                className="dropdown-button"
-                                onClick={() => setIsOpen(!isOpen)}
-                            >
-                                {user.username}
-                                <span>▼</span>
-                            </button>
-                            
-                            <div className={`dropdown-content ${isOpen ? 'show' : ''}`}>
-                                <Link 
-                                    to="/profile" 
-                                    className="dropdown-item"
-                                    onClick={() => setIsOpen(false)}
+                <div className="nav-links">
+                    <Link to="/community" className="nav-link">Community</Link>
+                    {!token ? (
+                        <>
+                            <Link to="/auth/login" className="nav-link">Login</Link>
+                            <Link to="/auth/signup" className="nav-button">Sign Up</Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/create-memory" className="nav-link">Create Memory</Link>
+                            <div className="dropdown">
+                                <button 
+                                    className="dropdown-button"
+                                    onClick={() => setIsOpen(!isOpen)}
                                 >
-                                    Profile
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="dropdown-item"
-                                >
-                                    Logout
+                                    {user?.username || 'User'}
+                                    <span>▼</span>
                                 </button>
+                                
+                                <div className={`dropdown-content ${isOpen ? 'show' : ''}`}>
+                                    <Link 
+                                        to="/profile" 
+                                        className="dropdown-item"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Profile
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="dropdown-item"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        </>
+                    )}
+                </div>
             </div>
         </nav>
     );

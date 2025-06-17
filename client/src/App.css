@@ -10,3 +10,15 @@
     padding-left: 2rem;
     padding-right: 2rem;
 }
+
+/* Add this new class for non-home pages */
+.main-content.with-padding {
+    padding-top: 80px;
+}
+
+/* Remove padding for home page */
+.main-content.home {
+    padding: 0;
+    max-width: none;
+    margin: 0;
+}
