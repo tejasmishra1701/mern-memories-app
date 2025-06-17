@@ -1,47 +1,22 @@
 import mongoose from 'mongoose';
 
-const memorySchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true,
-        minLength: 3,
-        maxLength: 100
-    },
-    description: {
-        type: String,
-        required: true,
-        trim: true,
-        minLength: 10,
-        maxLength: 2000
-    },
-    image: {
-        type: String,
-        required: true
-    },
+const memorySchema = mongoose.Schema({
+    title: String,
+    description: String,
     creator: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
     },
-    likes: [{
-        type: mongoose.Schema.Types.ObjectId,
+    image: String,
+    likes: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
         ref: 'User'
     }],
-    tags: [{
-        type: String,
-        trim: true
-    }],
     comments: [{
-        text: {
-            type: String,
-            required: true,
-            trim: true
-        },
+        text: String,
         creator: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
+            ref: 'User'
         },
         createdAt: {
             type: Date,

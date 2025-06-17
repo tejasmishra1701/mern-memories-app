@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 // Memory routes
-router.get('/', auth, getMemories);  // Added auth middleware here
+router.get('/', auth, getMemories);
 router.post('/', auth, createMemory);
 router.patch('/:id', auth, updateMemory);
 router.delete('/:id', auth, deleteMemory);
