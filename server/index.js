@@ -32,11 +32,29 @@ const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
-        console.log('Connected to MongoDB');
+        console.log('Connected to MongoDB Atlas -', new Date().toISOString());
+        console.log('Database connection status:', mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected');
+        
         app.listen(PORT, () => {
             console.log(`Server running on port: ${PORT}`);
         });
     })
     .catch((error) => {
-        console.error('MongoDB connection error:', error);
+        console.error('MongoDB connection error:', error.message);
+        console.error('Full error:', error);
+        console.error('MongoDB URI:', process.env.MONGODB_URI?.substring(0, 20) + '...');
+        process.exit(1);
     });
+
+// Add connection event listeners
+mongoose.connection.on('connected', () => {
+    console.log('Mongoose connected to MongoDB');
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('Mongoose connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('Mongoose disconnected');
+});
