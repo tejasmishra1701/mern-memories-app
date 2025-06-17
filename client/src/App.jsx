@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getMemories } from './redux/features/memorySlice';
 import Navbar from './components/Navbar/Navbar';
 import Home from './components/Home/Home';
 import Login from './components/Auth/Login';
@@ -11,9 +13,16 @@ import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 const App = () => {
+    const dispatch = useDispatch();
     const location = useLocation();
     const isHomePage = location.pathname === '/';
-    const { loading, token } = useSelector((state) => state.auth);
+    const { loading, token, user } = useSelector((state) => state.auth);
+
+    useEffect(() => {
+        if (user) {
+            dispatch(getMemories());
+        }
+    }, [dispatch, user]);
 
     if (loading) {
         return <div>Loading...</div>;

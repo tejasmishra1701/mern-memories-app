@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as api from '../../api'; // Updated path to point to src/api folder
+import * as api from '../../api';
 
 export const getMemories = createAsyncThunk(
     'memories/getMemories',
     async (_, { rejectWithValue }) => {
         try {
-            const { data } = await API.get('/memories');
-            return data;
+            const response = await api.getMemories();
+            return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data.message);
+            return rejectWithValue(error.response?.data?.message || 'Failed to fetch memories');
         }
     }
 );
@@ -68,19 +68,15 @@ const memorySlice = createSlice({
     name: 'memories',
     initialState: {
         memories: [],
-        currentMemory: null,
         loading: false,
         error: null
     },
-    reducers: {
-        clearError: (state) => {
-            state.error = null;
-        }
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(getMemories.pending, (state) => {
                 state.loading = true;
+                state.error = null;
             })
             .addCase(getMemories.fulfilled, (state, action) => {
                 state.loading = false;

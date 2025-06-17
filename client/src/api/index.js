@@ -32,7 +32,13 @@ export const signup = (formData) => API.post('/auth/signup', formData);
 export const updateProfile = (id, userData) => API.patch(`/user/${id}`, userData);
 
 // Memory APIs
-export const getMemories = () => API.get('/memory');
+export const getMemories = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+    return API.get('/memory');
+};
 export const createMemory = (memoryData) => {
     console.log('API call data:', memoryData);
     return API.post('/memory', memoryData);
