@@ -5,21 +5,12 @@ export const login = createAsyncThunk(
     'auth/login',
     async (formData, { rejectWithValue }) => {
         try {
-            console.log('Making login request with:', formData);
             const response = await api.login(formData);
-            console.log('Login response:', response);
-
-            if (response?.data?.token) {
-                localStorage.setItem('token', response.data.token);
-                return response.data;
-            }
-            return rejectWithValue('No token received from server');
+            // Save token immediately after successful login
+            localStorage.setItem('token', response.data.token);
+            return response.data;
         } catch (error) {
-            console.error('Login error in slice:', error);
-            return rejectWithValue(
-                error.response?.data?.message || 
-                'Server error during login'
-            );
+            return rejectWithValue(error.response?.data?.message || 'Login failed');
         }
     }
 );
@@ -29,10 +20,9 @@ export const signup = createAsyncThunk(
     async (formData, { rejectWithValue }) => {
         try {
             const response = await api.signup(formData);
-            if (response.data) {
-                localStorage.setItem('token', response.data.token);
-                return response.data;
-            }
+            // Save token immediately after successful signup
+            localStorage.setItem('token', response.data.token);
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Signup failed');
         }

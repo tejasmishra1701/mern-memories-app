@@ -2,22 +2,25 @@ import axios from 'axios';
 import config from '../config/config';
 
 const API = axios.create({ 
-    baseURL: config.API_URL,
-    timeout: 10000, // 10 seconds timeout
+    baseURL: config.API_URL
 });
 
 API.interceptors.request.use((req) => {
-    console.log('Making request to:', req.url);
+    const token = localStorage.getItem('token');
+    if (token) {
+        req.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log('Request headers:', req.headers); // Debug log
     return req;
 });
 
 API.interceptors.response.use(
-    (response) => response,
-    (error) => {
+    response => response,
+    error => {
         console.error('API Error:', {
-            url: error.config?.url,
+            endpoint: error.config?.url,
             status: error.response?.status,
-            message: error.message
+            message: error.response?.data?.message || error.message
         });
         return Promise.reject(error);
     }
