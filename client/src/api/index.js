@@ -5,20 +5,24 @@ const API = axios.create({
     baseURL: config.API_URL
 });
 
+// Request interceptor
 API.interceptors.request.use((req) => {
     const token = localStorage.getItem('token');
     if (token) {
         req.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Request headers:', req.headers); // Debug log
     return req;
+}, (error) => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
 });
 
+// Response interceptor
 API.interceptors.response.use(
-    response => response,
-    error => {
+    (response) => response,
+    (error) => {
         console.error('API Error:', {
-            endpoint: error.config?.url,
+            url: error.config?.url,
             status: error.response?.status,
             message: error.response?.data?.message || error.message
         });
@@ -32,17 +36,8 @@ export const signup = (formData) => API.post('/auth/signup', formData);
 export const updateProfile = (id, userData) => API.patch(`/user/${id}`, userData);
 
 // Memory APIs
-export const getMemories = () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('No authentication token found');
-    }
-    return API.get('/memory');
-};
-export const createMemory = (memoryData) => {
-    console.log('API call data:', memoryData);
-    return API.post('/memory', memoryData);
-};
+export const getMemories = () => API.get('/memory');
+export const createMemory = (newMemory) => API.post('/memory', newMemory);
 export const updateMemory = (id, updatedMemory) => API.patch(`/memory/${id}`, updatedMemory);
 export const deleteMemory = (id) => API.delete(`/memory/${id}`);
 export const likeMemory = (id) => API.patch(`/memory/${id}/like`);

@@ -3,43 +3,39 @@ import Memory from '../models/memory.js';
 
 export const getMemories = async (req, res) => {
     try {
+        console.log('Fetching memories for user:', req.userId);
         const memories = await Memory.find()
-            .populate('creator', 'username')  // Add this line to populate creator data
+            .populate('creator', 'name username avatar')
             .sort({ createdAt: -1 });
+        
+        console.log('Found memories:', memories.length);
         res.status(200).json(memories);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        console.error('Error fetching memories:', error);
+        res.status(500).json({ message: 'Failed to fetch memories' });
     }
 };
 
 export const createMemory = async (req, res) => {
     try {
-        const { title, description, image } = req.body;
-        console.log('Received memory data:', { title, description, hasImage: !!image });
-
-        if (!title || !description || !image) {
-            return res.status(400).json({ 
-                message: "Please provide all required fields" 
-            });
-        }
-
-        const newMemory = await Memory.create({
-            title,
-            description,
-            image,
-            creator: req.userId
+        console.log('Creating memory, user:', req.userId);
+        const memory = req.body;
+        
+        const newMemory = new Memory({
+            ...memory,
+            creator: req.userId,
+            createdAt: new Date().toISOString()
         });
 
+        await newMemory.save();
         const populatedMemory = await Memory.findById(newMemory._id)
-            .populate('creator', 'username');
+            .populate('creator', 'name username avatar');
 
-        console.log('Memory created successfully:', populatedMemory._id);
+        console.log('Memory created:', newMemory._id);
         res.status(201).json(populatedMemory);
     } catch (error) {
-        console.error('Create memory error:', error);
-        res.status(500).json({ 
-            message: error.message || "Failed to create memory" 
-        });
+        console.error('Error creating memory:', error);
+        res.status(409).json({ message: 'Failed to create memory' });
     }
 };
 
