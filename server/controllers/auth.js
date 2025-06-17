@@ -6,36 +6,37 @@ export const signin = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Check if user exists
         const existingUser = await User.findOne({ email });
         if (!existingUser) {
             return res.status(404).json({ message: "User doesn't exist." });
         }
 
+        // Check password
         const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
         if (!isPasswordCorrect) {
             return res.status(400).json({ message: "Invalid credentials." });
         }
 
+        // Generate token
         const token = jwt.sign(
             { email: existingUser.email, id: existingUser._id },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
+        // Send response
         res.status(200).json({ 
             result: {
                 _id: existingUser._id,
                 email: existingUser.email,
                 username: existingUser.username,
-                name: existingUser.name,
-                age: existingUser.age,
-                gender: existingUser.gender,
-                bio: existingUser.bio,
-                spiritCharacter: existingUser.spiritCharacter
+                name: existingUser.name
             }, 
             token 
         });
     } catch (error) {
+        console.error('Signin error:', error);
         res.status(500).json({ message: "Something went wrong." });
     }
 };
